@@ -1,0 +1,251 @@
+{
+  "id": "string",  // Identificador único do documento
+  "kind": "string",  // Tipo de documento (e.g., "JURISPRUDENCE")
+  "document": {
+    "title": "string",  // Título do documento
+    "body": "string",  // Conteúdo principal do documento
+    "highlight": "string",  // Trecho destacado do conteúdo
+    "date": "string"  // Data do documento (formato ISO 8601)
+  },
+  "metadata": {
+    "author": {  // Objeto Autor
+      "id": "string",  // Identificador do autor
+      "name": "string",  // Nome do autor
+      "username": "string",  // Nome de usuário do autor
+      "avatar": "string"  // URL do avatar do autor
+    },
+    "legacy": {  // Objeto Legado
+      "url": "string"  // URL legado do documento
+    },
+    "court": "string",  // Tribunal
+    "jurisprudence_type": "string",  // Tipo de jurisprudência
+    "degree": "string",  // Grau do processo (e.g., "SEGUNDO")
+    "party_names": "array of strings",  // Nomes das partes envolvidas
+    "rapporteur_name": "string",  // Nome do relator
+    "summary_status": "null",  // Status do resumo
+    "guidance_status": "null",  // Status da orientação
+    "is_mandatory_precedent": "boolean",  // Indica se é precedente obrigatório
+    "is_decision_merit": "boolean",  // Indica se é decisão de mérito
+    "is_decision_admissibility": "boolean",  // Indica se é decisão de admissibilidade
+    "judging_organ": "string",  // Órgão julgador
+    "thesis_type": "string",  // Tipo de tese
+    "thesis": "string",  // Tese
+    "theme_number": "string",  // Número do tema
+    "theme": "string",  // Tema
+    "has_gdpr_citation": "boolean",  // Indica se contém citação GDPR
+    "lawsuit_number": "string",  // Número do processo
+    "related_judges": "array of strings",  // Lista de juízes relacionados
+    "document_entities": "array of objects", // Entidades mencionadas no documento (atos normativos)
+    "document_citations": "array of objects", // Citações de outros documentos
+    "addons": {  // Objeto Adicionais
+      "key_value": "array of objects"  // Adicionais (fatos relevantes)
+    }
+  },
+  "boosts": {  // Objeto Boosts
+    "recency": "number",  // Valor de recência
+    "authority": "number",  // Valor de autoridade
+    "overall": "number",  // Valor geral
+    "experiments": {  // Objeto Experimentos
+      "key_value": "array of objects"  // Experimentos
+    },
+    "updated_at": "string"  // Data de atualização
+  },
+  "features": "objeto",  // Características (nulo)
+  "phrasal_terms": {  // Objeto Termos Frasais
+    "entity_type": "string",  // Tipo de entidade (PHRASAL_TERM)
+    "title": {  // Objeto Termo Frasal Título
+      "entity_type": "string",  // Tipo de entidade (PHRASAL_TERM)
+      "matches": "array of objects"  // Correspondências de termos
+    },
+    "body": {  // Objeto Termo Frasal Corpo
+      "entity_type": "string",  // Tipo de entidade (PHRASAL_TERM)
+      "matches": "array of objects"  // Correspondências de termos
+    },
+    "highlight": {  // Objeto Termo Frasal Destaque
+      "entity_type": "string",  // Tipo de entidade (PHRASAL_TERM)
+      "matches": "array of objects"  // Correspondências de termos
+    },
+    "extensions": {  // Objeto Extensões Termo Frasal
+      "key_value": "array of objects"  // Extensões
+    },
+    "updated_at": "string"  // Data de atualização
+  },
+  "date_times": {  // Objeto Datas e Horas
+    "entity_type": "string",  // Tipo de entidade (DATETIME)
+    "title": "null",  // Título (nulo)
+    "body": {  // Objeto Datas e Horas Corpo
+      "entity_type": "string",  // Tipo de entidade (DATETIME)
+      "matches": "array of objects"  // Correspondências de datas/horas
+    },
+    "highlight": "null",  // Destaque (nulo)
+    "extensions": {  // Objeto Extensões Datas e Horas
+      "key_value": "array of objects"  // Extensões
+    },
+    "updated_at": "string"  // Data de atualização
+  },
+  "identities": {  // Objeto Identidades
+    "entity_type": "string",  // Tipo de entidade (IDENTITY)
+    "title": {  // Objeto Identidade Título
+      "entity_type": "string",  // Tipo de entidade (IDENTITY)
+      "matches": "array of objects"  // Correspondências de identidades
+    },
+    "body": {  // Objeto Identidade Corpo
+      "entity_type": "string",  // Tipo de entidade (IDENTITY)
+      "matches": "array of objects"  // Correspondências de identidades
+    },
+    "highlight": "null",  // Destaque (nulo)
+    "extensions": {  // Objeto Extensões Identidades
+      "key_value": "array of objects"  // Extensões
+    },
+    "updated_at": "string"  // Data de atualização
+  },
+  "acronyms": {  // Objeto Acrônimos
+    "entity_type": "string",  // Tipo de entidade (ACRONYM)
+    "title": {  // Objeto Acrônimo Título
+      "entity_type": "string",  // Tipo de entidade (ACRONYM)
+      "matches": "array of objects"  // Correspondências de acrônimos
+    },
+    "body": {  // Objeto Acrônimo Corpo
+      "entity_type": "string",  // Tipo de entidade (ACRONYM)
+      "matches": "array of objects"  // Correspondências de acrônimos
+    },
+    "highlight": "null",  // Destaque (nulo)
+    "extensions": {  // Objeto Extensões Acrônimos
+      "key_value": "array of objects"  // Extensões
+    },
+    "updated_at": "string"  // Data de atualização
+  },
+  "precedents": {  // Objeto Precedentes
+    "entity_type": "string",  // Tipo de entidade (PRECEDENT)
+    "title": "null",  // Título (nulo)
+    "body": {  // Objeto Precedente Corpo
+      "entity_type": "string",  // Tipo de entidade (PRECEDENT)
+      "matches": "array of objects"  // Correspondências de precedentes
+    },
+    "highlight": "null",  // Destaque (nulo)
+    "extensions": {  // Objeto Extensões Precedentes
+      "key_value": "array of objects"  // Extensões
+    },
+    "updated_at": "string"  // Data de atualização
+  },
+  "themes": {  // Objeto Temas
+    "entity_type": "string",  // Tipo de entidade (THEME)
+    "title": "null",  // Título (nulo)
+    "body": "null",  // Corpo (nulo)
+    "highlight": "null",  // Destaque (nulo)
+    "extensions": {  // Objeto Extensões Temas
+      "key_value": "array of objects"  // Extensões
+    },
+    "updated_at": "string"  // Data de atualização
+  },
+  "merged_entities": {  // Objeto Entidades Mescladas
+    "title": {  // Objeto Entidade Mesclada Título
+      "matches": "array of objects"  // Correspondências de entidades mescladas
+    },
+    "body": {  // Objeto Entidade Mesclada Corpo
+      "matches": "array of objects"  // Correspondências de entidades mescladas
+    },
+    "highlight": {  // Objeto Entidade Mesclada Destaque
+      "matches": "array of objects"  // Correspondências de entidades mescladas
+    },
+    "extensions": {  // Objeto Extensões Entidades Mescladas
+      "key_value": "array of objects"  // Extensões
+    },
+    "updated_at": "string"  // Data de atualização
+  },
+  "__key": "string",  // Chave interna
+  "__value": "string",  // Valor interno
+  "__offset": "number",  // Deslocamento interno
+  "__partition": "number",  // Partição interna
+  "__timestamp": "string"   // Timestamp interno
+}
+
+// Estrutura JSON dos objetos dentro dos arrays:
+
+// Objeto Document Entity (dentro de document_entities):
+{
+  "entity_type": "string",
+  "title": "string | null",
+  "body": {
+    "entity_type": "string",
+    "matches": "array of objects" // Cada objeto aqui representa um trecho do texto
+  },
+  "highlight": "string | null",
+  "extensions": {
+    "key_value": "array of objects" // Pares chave-valor
+  },
+  "updated_at": "string | null"
+}
+
+// Objeto Text Match (dentro de matches nos arrays de body de Document Entity):
+{
+    "offsets": "array of numbers", // Posições no texto onde a entidade foi encontrada
+    "aliases": "array of strings"  // Outros nomes da entidade
+}
+
+// Objeto Document Citation (dentro de document_citations):
+{
+  "id": { // Objeto Documento Citado
+    "id": "string",
+    "kind": "string"
+  },
+  "count": "number" // Número de vezes que o documento foi citado
+}
+
+// Objeto Key Value (dentro de addons, extensions, etc.):
+{
+  "key": "string",
+  "value": "any" // Pode ser qualquer tipo de dado (string, number, boolean, etc.)
+}
+
+// Objeto Phrasal Term Match (dentro de matches nos arrays de title, body, highlight de phrasal_terms):
+{
+    "offsets": "array of numbers", // Posições no texto onde o termo foi encontrado
+    "aliases": "array of strings"  // Outros termos relacionados
+}
+
+// Objeto Datetime Match (dentro de matches nos arrays de body de date_times):
+{
+    "offsets": "array of numbers", // Posições no texto onde a data/hora foi encontrada
+    "aliases": "array of strings"  // Outras formas da data/hora
+}
+
+// Objeto Identity Match (dentro de matches nos arrays de title e body de identities):
+{
+    "offsets": "array of numbers", // Posições no texto onde a identidade foi encontrada
+    "aliases": "array of strings"  // Outras formas da identidade
+}
+
+// Objeto Acronym Match (dentro de matches nos arrays de title e body de acronyms):
+{
+    "offsets": "array of numbers", // Posições no texto onde o acrônimo foi encontrado
+    "aliases": "array of strings"  // Outras formas do acrônimo
+}
+
+// Objeto Precedent Match (dentro de matches nos arrays de body de precedents):
+{
+    "offsets": "array of numbers", // Posições no texto onde o precedente foi encontrado
+    "aliases": "array of strings"  // Outras formas do precedente
+}
+
+// Objeto Merged Entity Match (dentro de matches nos arrays de title, body, highlight de merged_entities):
+{
+    "entity_types": "array of strings", // Tipos de entidades mescladas
+    "offsets": "array of numbers",    // Posições no texto onde a entidade foi encontrada
+    "aliases": "array of strings"     // Outras formas da entidade
+}
+
+"features": {  // Objeto Features
+    "copies_lt": "number",  // Cópias (menor que)
+    "copies_st": "number",  // Cópias (menor ou igual a)
+    "impressions_lt": "number",  // Impressões (menor que)
+    "impressions_st": "number",  // Impressões (menor ou igual a)
+    "weighted_impressions_lt": "number",  // Impressões ponderadas (menor que)
+    "weighted_impressions_st": "number",  // Impressões ponderadas (menor ou igual a)
+    "authority_time_discounted": "number",  // Autoridade com desconto de tempo
+    "copy_context": "string",  // Contexto da cópia
+    "click_context": "string",  // Contexto do clique
+    "expanded_copy_context": "string",  // Contexto expandido da cópia
+    "citation_context": "string",  // Contexto da citação
+    "updated_at": "string"  // Data de atualização (formato ISO 8601)
+}
