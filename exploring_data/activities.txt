@@ -1,0 +1,5 @@
+- Remover stopwords
+- Aplicar lematização | por enquanto não mas depois a gente testa
+- Aplicar Steamming | por enquanto não mas depois a gente testa
+- Normalização, colocar palavras tudo em minusculo
+- Expansão de consulta | por enquanto não mas depois implementa

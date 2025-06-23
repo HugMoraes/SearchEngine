@@ -1,25 +1,23 @@
-import pandas as pd
+from src.searchEngine import MyElasticsearch
+from src.pipelineReader import PipelineReader
+from src.schema import MAPPING
 
-# Lê o arquivo parquet
-df = pd.read_parquet('data/baseDocumentos')
+DATABASE_PATH = 'data/baseDocumentos'
+ELASTIC_SEARCH_ADDRESS = 'http://localhost:9200'
 
-# Exibe as primeiras linhas do DataFrame
-print("\nPrimeiras linhas do arquivo:")
-print(df.head())
+reader = PipelineReader(DATABASE_PATH)
 
-# Exibe informações sobre o DataFrame
-print("\nInformações sobre o DataFrame:")
-print(df.info())
+se = MyElasticsearch(ELASTIC_SEARCH_ADDRESS)
 
-# Exibe estatísticas descritivas
-print("\nEstatísticas descritivas:")
-print(df.describe()) 
+se.create_index('test', MAPPING)
+se.list_indices()
 
-for index, row in df.iterrows():
-        metaData = row['metadata'].keys()
-        print("metadata\n",metaData)
-        keys = row['document'].keys()
-        print("document\n",keys)
-        print(row['document']['body'])
-        if index > 10:
-            break
+row = reader.df.iloc[0]
+doc = reader._create_document_from_row(row)
+print(doc)
+se.insert_document('test', doc)
+se.count_documents('test')
+
+
+# se.delete_index('test')
+# se.list_indices()
