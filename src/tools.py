@@ -3,37 +3,25 @@ import nltk
 from nltk.corpus import stopwords
 
 class Tools:
+    try:
+        _stop_words = set(stopwords.words('portuguese'))
+    except LookupError:
+        print("NLTK stopwords not found. Downloading...")
+        nltk.download('stopwords')
+        _stop_words = set(stopwords.words('portuguese'))
+
     @staticmethod
     def remove_stopwords(text: str) -> str:
-        try:
-            stopwords.words('portuguese')
-        except LookupError:
-            nltk.download('stopwords')
-        stop_words = set(stopwords.words('portuguese'))
         words = text.split()
-        filtered = [word for word in words if word.lower() not in stop_words]
+        # Usa o set de stopwords já carregado na classe
+        filtered = [word for word in words if word.lower() not in Tools._stop_words]
         return ' '.join(filtered)
 
     @staticmethod
     def remove_special_characters(text: str) -> str:
-        return re.sub(r'[^\w\sÀ-ÿ]', ' ', text, flags=re.UNICODE)
+        # A flag re.UNICODE é padrão no Python 3, então pode ser omitida.
+        return re.sub(r'[^\w\sÀ-ÿ]', ' ', text)
 
     @staticmethod
     def lowercase_text(text: str) -> str:
         return text.lower()
-
-    @staticmethod
-    def apply_text_processing(text:str, functions:list) -> str:
-        """
-        Applies a series of text processing functions to the input text.
-        
-        Args:
-            text (str): The input text to be processed.
-            functions (list): A list of functions to apply to the text.
-        
-        Returns:
-            str: The processed text.
-        """
-        for func in functions:
-            text = func(text)
-        return text
