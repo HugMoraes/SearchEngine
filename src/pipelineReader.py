@@ -11,7 +11,7 @@ class PipelineReader:
         self.load_file()
     
     def load_file(self) -> None:
-        print(f"Reading parquet file from {self.filepath}...")
+        print(f"Lendo arquivo parquet {self.filepath}...")
         start_time = time.time()
         
         try:
@@ -25,8 +25,8 @@ class PipelineReader:
             return
     
         self.df = df
-        print(f"DataFrame loaded successfully with {len(df)} rows and {len(df.columns)} columns.")
-        print(f"Time taken to read the file: {time.time() - start_time:.2f} seconds")
+        print(f"DataFrame carregado com sucesso com {len(df)} linhas e {len(df.columns)} colunas.")
+        print(f"Tempo gasto para ler o arquivo: {time.time() - start_time:.2f} segundos")
     
     def _create_document_from_row(self, row: dict):
         """Cria um único dicionário de documento a partir de uma linha (em formato de dict)."""
@@ -186,8 +186,8 @@ class PipelineReader:
             # Se em qualquer ponto o caminho não for encontrado ou o valor não for
             # um dicionário, a função é interrompida para evitar erros.
             if not isinstance(d, dict):
-                #Opcional: Adicionar um log para alertar sobre caminhos inválidos.
-                print(f"Aviso: O caminho '{".".join(keys)}' é inválido e não será atualizado.")
+                caminho_formatado = ".".join(keys)
+                print(f"Aviso: O caminho '{caminho_formatado}' é inválido e não será atualizado.")
                 return
 
         # 2. No dicionário final, verifica se a chave-alvo existe.

@@ -1,5 +1,5 @@
-#configure file for elasticsearch
+import os
 
-class Config:
-    address = 'http://localhost:9200'   # Elasticsearch address
-    index_name = 'baseDocumentos'       # Index name in Elasticsearch
+DATABASE_PATH = os.getenv('DATABASE_PATH', 'data/baseDocumentos')
+ELASTIC_SEARCH_ADDRESS = os.getenv('ELASTICSEARCH_HOSTS', 'http://localhost:9200')
+MAIN_INDEX_NAME = os.getenv('MAIN_INDEX_NAME', 'main_index')
