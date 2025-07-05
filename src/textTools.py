@@ -1,12 +1,16 @@
 import re
-import nltk
 import os
+import nltk
 import spacy
+from numpy import ndarray
+from sentence_transformers import SentenceTransformer
 from nltk.corpus import stopwords
 from nltk.stem import RSLPStemmer
 from nltk.tokenize import word_tokenize
 from groq import Groq
-import time
+
+_model_st = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+
 # Inicialização segura dos recursos externos
 try:
     _stop_words = set(stopwords.words('portuguese'))
@@ -51,10 +55,6 @@ class Tools:
         return text.lower()
 
     @staticmethod
-    def remove_extra_spaces(text: str) -> str:
-        return re.sub(r'\s+', ' ', text).strip()
-
-    @staticmethod
     def apply_lemmatization(text: str) -> str:
         doc = nlp_pt(text)
         lemmatized_words = [token.lemma_ for token in doc]
@@ -72,7 +72,6 @@ class Tools:
     
     @staticmethod
     def expand_query(query: str) -> str:
-        start_time = time.time()
         stream = client.chat.completions.create(
             messages=[
                 {
@@ -88,8 +87,44 @@ class Tools:
             temperature=0.5,
         )
 
-        print(f"Tempo chamando Groq para adicionar sinônimos: {int(time.time() - start_time)}s")
         return stream.choices[0].message.content
-    
 
-# print(Tools.expand_query("ação para tutela da saúde mental"))
+    @staticmethod
+    def vectorize(text: str) -> ndarray:
+        cleaned_text = Tools.lowercase_text(text)
+        vector = _model_st.encode(cleaned_text)
+        return vector
+    
+    def ai_text(text: str) -> str:
+        stream = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content":
+                    """
+                    Você vai me ajudar a otimizar textos em um contexto de busca por documentos jurídicos.
+                    Vou te mandar textos e você vai me retornar termos e possíveis consultas sobre as coisas mais importantes de cada parágrafo do texto.
+                    Me retorne em um formato padronizado que seja cada resultado separado por quebras de linha.
+                    Não escreva nada além do resultado.
+                    Para cada texto, leia todos os parágrafos e gere pelo menos 10 resultados e no máximo 50.
+                    """
+                },
+                {
+                    "role": "user",
+                    "content": f'Extraia termos otimizados para busca jurídica deste texto: "{text}"'
+                }
+            ],
+            model="llama-3.3-70b-versatile",
+            temperature=0.5,
+        )
+
+        return stream.choices[0].message.content
+
+
+# print(Tools.ai_text('''
+#                     EMBARGOS A EXECUÇÃO FISCAL. MULTA APLICADA À EMBARGANTE POR UTILIZAÇÃO DE PRODUTO DA QUEIMA DE PALHA DE CANA DE AÇUCAR.
+#                     PEDIDO JULGADO IMPROCEDENTE PELO MM. JUÍZO "A QUO". RECURSO DE APELAÇÃO INTERPOSTO PELA EMBARGANTE. PRETENSÃO RECURSAL ACOLHIDA. ENTENDIMENTO MAJORITÁRIO
+#                     DA TURMA JULGADORA SOBRE O TEMA, A DESPEITO DA POSIÇÃO DESTE JULGADOR EM SENTIDO CONTRÁRIO. RESPONSABILIDADE ADMINISTRATIVA AMBIENTAL QUE É SUBJETIVA. AUSÊNCIA
+#                     DE PROVA SEGURA DE QUE A EMBARGANTE TENHA PROMOVIDO O INCÊNDIO NO LOCAL OU DELE SE BENEFICIADO. COLHEITA REALIZADA DE FORMA MECANIZADA PELA USINA, QUE, ADEMAIS,
+#                     PROCESSOU O PRODUTO DECORRENTE DA QUEIMA A FIM DE MINIMIZAR OS PREJUÍZOS (IMPORTANTE RESSALTAR QUE O ARTIGO 39 DO DECRETO-LEI Nº 3.855 /41 VEDA A EMPRESA PRODUTORA
+#                     DE ÁLCOOL RECUSAR A COLHEITA DE SEU FORNECEDOR). ANULAÇÃO DO AUTO DE INFRAÇÃO E EXTINÇÃO DA EXECUÇÃO. SENTENÇA REFORMADA. RECURSO PROVIDO'''))

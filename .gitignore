@@ -1,3 +1,5 @@
 env
 baseDocumentos
 __pycache__
+.venv
+.vscode
