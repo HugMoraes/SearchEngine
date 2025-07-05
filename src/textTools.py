@@ -1,27 +1,49 @@
 import re
 import nltk
+import os
+import spacy
 from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
+from nltk.stem import RSLPStemmer
+from nltk.tokenize import word_tokenize
+from groq import Groq
 
+# Inicialização segura dos recursos externos
+try:
+    _stop_words = set(stopwords.words('portuguese'))
+except LookupError:
+    nltk.download('stopwords')
+    _stop_words = set(stopwords.words('portuguese'))
+
+# Garante que os recursos do NLTK estejam disponíveis
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
+
+try:
+    nltk.data.find('stemmers/rslp')
+except LookupError:
+    nltk.download('rslp')
+
+# Carrega o modelo do spaCy para português
+try:
+    nlp_pt = spacy.load("pt_core_news_sm")
+except OSError:
+    os.system("python -m spacy download pt_core_news_sm")
+    nlp_pt = spacy.load("pt_core_news_sm")
+
+client = Groq()
 
 class Tools:
-    try:
-        _stop_words = set(stopwords.words('portuguese'))
-    except LookupError:
-        print("NLTK stopwords not found. Downloading...")
-        nltk.download('stopwords')
-        _stop_words = set(stopwords.words('portuguese'))
 
     @staticmethod
     def remove_stopwords(text: str) -> str:
         words = text.split()
-        # Usa o set de stopwords já carregado na classe
-        filtered = [word for word in words if word.lower() not in Tools._stop_words]
+        filtered = [word for word in words if word.lower() not in _stop_words]
         return ' '.join(filtered)
 
     @staticmethod
     def remove_special_characters(text: str) -> str:
-        # A flag re.UNICODE é padrão no Python 3, então pode ser omitida.
         return re.sub(r'[^\w\sÀ-ÿ]', ' ', text)
 
     @staticmethod
@@ -30,14 +52,35 @@ class Tools:
 
     @staticmethod
     def remove_extra_spaces(text: str) -> str:
-        # Remove espaços extras e substitui por um único espaço
         return re.sub(r'\s+', ' ', text).strip()
 
     @staticmethod
     def apply_lemmatization(text: str) -> str:
-        lemmatizer = WordNetLemmatizer()
-        words = text.split()
-        lemmatized_words = [lemmatizer.lemmatize(word) for word in words]
+        doc = nlp_pt(text)
+        lemmatized_words = [token.lemma_ for token in doc]
         return ' '.join(lemmatized_words)
     
+    @staticmethod
+    def tokenize(text: str) -> list[str]:            
+        return word_tokenize(text, language='portuguese')
     
+    @staticmethod
+    def apply_stemming(text: str) -> str:               
+        stemmer = RSLPStemmer()
+        words = text.split()
+        return ' '.join([stemmer.stem(word) for word in words])
+    
+    @staticmethod
+    def expand_query(query: str) -> str:
+        stream = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Você vai me ajudar a expandir consultas. Vou lhe mandar textos e você expandirá os substantivos, verbos e adjetivos com seus respectivos sinônimos."
+                },
+                {
+                    "role": "user",
+                    "content": ""
+                }
+            ]
+        )
