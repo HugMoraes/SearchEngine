@@ -1,7 +1,7 @@
-from src.searchEngine import MyElasticsearch
+from src.app.MySearchEngine import MySearchEngine
 from src.config import ELASTIC_SEARCH_ADDRESS, MAIN_INDEX_NAME
 
-es = MyElasticsearch(hosts=ELASTIC_SEARCH_ADDRESS)
+es = MySearchEngine(hosts=ELASTIC_SEARCH_ADDRESS)
 
 class DocumentResult:
     def __init__(self, doc_id: str, relevance: float):
@@ -13,20 +13,7 @@ class DocumentResult:
         # << MELHORIA: Formata a relevância para ter 2 casas decimais para melhor leitura.
         return f"ID do Documento: {self.id}, Relevância: {self.relevance:.2f}"
 
-class Query:
-    def __init__(self, text: str, documents: list[DocumentResult]):
-        self.text: str = text
-        self.documents: list[DocumentResult] = documents
-
-    def __str__(self) -> str:
-        """Retorna uma representação em string do objeto Query."""
-        if not self.documents:
-            return f"Query: {self.text}\nDocumentos:\n   (Nenhum resultado encontrado)"
-            
-        docs_str = '\n   '.join(str(doc) for doc in self.documents)
-        return f"Query: {self.text}\nDocumentos:\n   {docs_str}"
-
-def load_queries_from_file(path: str) -> list[Query]:
+def load_queries_from_file(path: str) -> dict[str, DocumentResult]:
     """
     Lê um arquivo com consultas e seus documentos relevantes e retorna uma lista de objetos Query.
     """
@@ -59,8 +46,7 @@ def load_queries_from_file(path: str) -> list[Query]:
             else:
                 print(f"Aviso: Ignorando Document ID '{doc_id}' por falta de Query ou Relevância associada.")
     
-    queries = [Query(text, docs) for text, docs in queries_dict.items()]
-    return queries
+    return queries_dict
 
 def _to_document_results(search_hits: list[dict]) -> list[DocumentResult]:
     """
@@ -81,29 +67,27 @@ def _to_document_results(search_hits: list[dict]) -> list[DocumentResult]:
     return document_results
 
 
-def query_elastic(index_name: str, queries: list[str], size: int = 20) -> list[Query]:
-    """
-    Executa uma lista de textos de consulta no Elasticsearch e retorna uma lista de objetos Query com os resultados.
-    """
-    results = []
-    for query_text in queries:
-        try:
-            search_hits = es.search_documents(index_name, query=query_text, size=size)
+# def query_elastic(index_name: str, queries: list[str], size: int = 20) -> list[Query]:
+#     """
+#     Executa uma lista de textos de consulta no Elasticsearch e retorna uma lista de objetos Query com os resultados.
+#     """
+#     results = []
+#     for query_text in queries:
+#         try:
+#             search_hits = es.search_documents(index_name, query=query_text, size=size)
             
-            doc_results = _to_document_results(search_hits)
+#             doc_results = _to_document_results(search_hits)
             
-            results.append(Query(text=query_text, documents=doc_results))
-        except Exception as e:
-            print(f"Erro ao buscar pela query '{query_text}': {e}")
-            results.append(Query(text=query_text, documents=[]))
+#             results.append(Query(text=query_text, documents=doc_results))
+#         except Exception as e:
+#             print(f"Erro ao buscar pela query '{query_text}': {e}")
+#             results.append(Query(text=query_text, documents=[]))
 
-    return results
+#     return results
 
 queries_from_file = load_queries_from_file('data/query_eval')
 
-query_texts_to_run = [query.text for query in queries_from_file]
-
-print(query_texts_to_run)
+print(queries_from_file.keys())
 
 # queries_from_elastic = query_elastic(MAIN_INDEX_NAME, query_texts_to_run)
 

@@ -76,7 +76,10 @@ class PipelineReader:
         }
         return doc
 
-    def documents_to_index_format(self, transformations=None):
+    def _insert_search_fields(self):
+        pass
+
+    def documents_to_index_format(self):
         """Converte o DataFrame para uma lista de dicionários no formato para indexação.
 
         Este método itera sobre cada linha do DataFrame, converte-a para um dicionário
@@ -150,6 +153,7 @@ class PipelineReader:
             print(f"Processando documento: {i + 1}/{total_docs}", end="\r")
 
             doc = self._create_document_from_row(row)
+            doc = self._insert_search_fields(doc)
                 
             documents.append(doc)
 

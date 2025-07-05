@@ -1,1 +1,1 @@
-from SearchEngine.compareEngines.SearchEngineConfig import SearchEngineConfig
+from src.test.query import MySearchEngine

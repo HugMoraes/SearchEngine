@@ -1,5 +1,5 @@
 from src.searchEngine import MyElasticsearch
-from src.pipelineReader import PipelineReader
+from SearchEngine.src.insertDocs.pipelineReader import PipelineReader
 from src.schema import MAPPING
 from src.config import DATABASE_PATH, ELASTIC_SEARCH_ADDRESS, MAIN_INDEX_NAME
 
