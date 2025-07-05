@@ -56,24 +56,6 @@ class MyElasticsearch(Elasticsearch):
             print("\nPor favor, verifique se o serviço Elasticsearch está no ar e acessível.")
             print("Tente modificar o arquivo config/elasticsearch.yml mudando xpack.security.enabled para false e reinicie o Elasticsearch.")
             exit(1)
-        
-    def start_connection(self, address):
-        """
-        Start the connection to Elasticsearch.
-        """
-
-        print(f"Starting connection to Elasticsearch ({address})...")
-        try:
-            super().__init__(address)
-        except exceptions.ConnectionError as e:
-            print(f"Conection error!\n\nTry to modify config/elasticsearch.yaml file changing xpack.security.enabled to false and restart elastic search\n\n Error:\n {e}")
-            exit(1)
-        
-        # client_info = self.info()
-        # print("Connected to Elasticsearch:", client_info)
-        # print(client_info.body)
-
-        print("\nConnection established successfully.\n")
 
     def create_index(self, index_name, mapping=None):
         """
@@ -181,7 +163,6 @@ class MyElasticsearch(Elasticsearch):
         try:
             response = self.count(index=index_name)
             total = response['count']
-            #print(f"Total documents in '{index_name}': {total}")
             return total
         except exceptions.NotFoundError:
             return -1

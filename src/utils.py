@@ -1,7 +1,6 @@
-from src.searchEngine import MyElasticsearch
+from src.app.MySearchEngine import MySearchEngine
 from src.config import ELASTIC_SEARCH_ADDRESS, MAIN_INDEX_NAME
 import sys
-from elasticsearch import exceptions
 from src.insert_docs import insert_docs
 
 def check_index_elasticSearch():
@@ -10,7 +9,7 @@ def check_index_elasticSearch():
     Se o índice não existir ou estiver vazio, chama a função insere_docs para populá-lo.
     """
     try:
-        es = MyElasticsearch(hosts=ELASTIC_SEARCH_ADDRESS)
+        es = MySearchEngine(hosts=ELASTIC_SEARCH_ADDRESS)
         
         print("Verificando conexão com Elasticsearch...")
         # O método ping() é uma forma leve de verificar se o cluster está disponível.

@@ -20,7 +20,6 @@ class PipelineReader:
             print(f"Error: The file was not found at {self.filepath}")
             return
         except Exception as e:
-            # Captura outras exceções de leitura
             print(f"Error reading parquet file: {e}")
             return
     
@@ -151,72 +150,11 @@ class PipelineReader:
             print(f"Processando documento: {i + 1}/{total_docs}", end="\r")
 
             doc = self._create_document_from_row(row)
-            
-            if transformations:
-                doc = self._apply_transformations(doc, transformations)
                 
             documents.append(doc)
-        
-        # 4. (Opcional, mas recomendado) Imprima uma linha em branco no final 
-        #    para que o próximo output do terminal não sobrescreva sua linha de progresso.
+
         print() 
         print("Processamento concluído!")
         
         return documents
 
-    def _get_nested_value(self, dictionary, keys):
-        """Acessa um valor aninhado em um dicionário usando uma lista de chaves."""
-        try:
-            return reduce(operator.getitem, keys, dictionary)
-        except (KeyError, TypeError):
-            return None
-
-    def _set_nested_value(self, dictionary, keys, value):
-        """
-        Define um valor em um campo aninhado APENAS SE O CAMINHO COMPLETO JÁ EXISTIR.
-        Não cria novas chaves para evitar inconsistências com o schema.
-        """
-        # Copia a referência do dicionário para uma variável temporária
-        d = dictionary
-        
-        # 1. Navega até o dicionário que contém o campo final
-        for key in keys[:-1]:
-            d = d.get(key)
-            
-            # Se em qualquer ponto o caminho não for encontrado ou o valor não for
-            # um dicionário, a função é interrompida para evitar erros.
-            if not isinstance(d, dict):
-                caminho_formatado = ".".join(keys)
-                print(f"Aviso: O caminho '{caminho_formatado}' é inválido e não será atualizado.")
-                return
-
-        # 2. No dicionário final, verifica se a chave-alvo existe.
-        #    Só então o valor é atualizado.
-        if keys[-1] in d:
-            d[keys[-1]] = value
-        else:
-            # Opcional: Alerta se o campo final não existe no dicionário pai.
-            print(f"Aviso: O campo final '{keys[-1]}' não existe e não será criado.")
-
-    def _apply_transformations(self, doc, transformations):
-        """Aplica as transformações especificadas a um documento."""
-        if not transformations:
-            return doc
-
-        for field_path, funcs in transformations.items():
-            keys = field_path.split('.')
-            original_value = self._get_nested_value(doc, keys)
-
-            if not isinstance(original_value, str):
-                continue
-
-            if not isinstance(funcs, list):
-                funcs = [funcs]
-            
-            transformed_value = original_value
-            for func in funcs:
-                transformed_value = func(transformed_value)
-            
-            self._set_nested_value(doc, keys, transformed_value)
-            
-        return doc

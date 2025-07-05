@@ -1,0 +1,1 @@
+from SearchEngine.compareEngines.SearchEngineConfig import SearchEngineConfig
