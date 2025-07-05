@@ -6,7 +6,7 @@ from nltk.corpus import stopwords
 from nltk.stem import RSLPStemmer
 from nltk.tokenize import word_tokenize
 from groq import Groq
-
+import time
 # Inicialização segura dos recursos externos
 try:
     _stop_words = set(stopwords.words('portuguese'))
@@ -32,7 +32,7 @@ except OSError:
     os.system("python -m spacy download pt_core_news_sm")
     nlp_pt = spacy.load("pt_core_news_sm")
 
-client = Groq()
+client = Groq(api_key="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")
 
 class Tools:
 
@@ -72,15 +72,24 @@ class Tools:
     
     @staticmethod
     def expand_query(query: str) -> str:
+        start_time = time.time()
         stream = client.chat.completions.create(
             messages=[
                 {
                     "role": "system",
-                    "content": "Você vai me ajudar a expandir consultas. Vou lhe mandar textos e você expandirá os substantivos, verbos e adjetivos com seus respectivos sinônimos."
+                    "content": "Você vai me ajudar a expandir consultas no contexto de um sistema de busca jurídico. Vou lhe mandar textos e você expandirá os substantivos, verbos e adjetivos com seus respectivos sinônimos. Escreva pelo menos três sinônimos para as palavras mais importantes da consulta. Retorne apenas a consulta com os sinônimos, sem caracteres especiais e sem vírgula onde houver os sinônimos adicionados. não escreva mais nada além disso."
                 },
                 {
                     "role": "user",
-                    "content": ""
+                    "content": f'Expanda a seguinte query: "{query}"'
                 }
-            ]
+            ],
+            model="llama-3.3-70b-versatile",
+            temperature=0.5,
         )
+
+        print(f"Tempo chamando Groq para adicionar sinônimos: {int(time.time() - start_time)}s")
+        return stream.choices[0].message.content
+    
+
+# print(Tools.expand_query("ação para tutela da saúde mental"))
