@@ -1,6 +1,8 @@
 import re
 import nltk
 from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+
 
 class Tools:
     try:
@@ -25,3 +27,17 @@ class Tools:
     @staticmethod
     def lowercase_text(text: str) -> str:
         return text.lower()
+
+    @staticmethod
+    def remove_extra_spaces(text: str) -> str:
+        # Remove espaços extras e substitui por um único espaço
+        return re.sub(r'\s+', ' ', text).strip()
+
+    @staticmethod
+    def apply_lemmatization(text: str) -> str:
+        lemmatizer = WordNetLemmatizer()
+        words = text.split()
+        lemmatized_words = [lemmatizer.lemmatize(word) for word in words]
+        return ' '.join(lemmatized_words)
+    
+    
