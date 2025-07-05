@@ -54,3 +54,12 @@ def check_index_elasticSearch():
         print(f"Detalhes: {e}")
         print("--- Servidor Flask NÃO será iniciado. ---")
         sys.exit(1)
+
+
+def remove_search_fields(document: dict):
+    document.pop("search_fields")
+    return document
+
+
+# document = {"metadata": [1,2,3], "title": "documento", "search_fields": ["metadata"]}
+# print(remove_search_fields(document))
