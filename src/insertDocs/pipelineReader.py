@@ -1,14 +1,15 @@
 import pandas as pd
 import time
 import numpy as np
-from functools import reduce
-import operator
+from src.config import DATABASE_PATH
+from src.insertDocs.SearchFieldsModels import SearchField, TEXT_FUNCTIONS, SearchFieldsConfig
+from src.insertDocs.utils import generate_search_field_combinations
 
 class PipelineReader:
     def __init__(self, filepath: str):
         self.filepath = filepath
         self.df = None
-        self.load_file()
+        #self.load_file()
     
     def load_file(self) -> None:
         print(f"Lendo arquivo parquet {self.filepath}...")
@@ -76,7 +77,26 @@ class PipelineReader:
         }
         return doc
 
-    def _insert_search_fields(self):
+    def _insert_search_fields(self, doc:dict, searchFields:list[SearchField]):
+
+        search_fields = {}
+
+        for field in searchFields:
+            
+            field_text = doc["document"][field.from_field]
+
+            for technique_name in field.techniques:
+                field_text = TEXT_FUNCTIONS[technique_name](field_text)
+
+            search_fields[field.from_field + "." + ".".join(field.techniques)] = field_text
+
+        doc["search_fields"] = search_fields
+
+        print(doc)
+
+        for key, text in doc["search_fields"].items():
+            print(key, text)
+
         pass
 
     def documents_to_index_format(self):
@@ -162,3 +182,38 @@ class PipelineReader:
         
         return documents
 
+doc = {
+    "id": 123,
+    "document": {
+        "title": "TITUlo1",
+        "body": "corpo do documento",
+        "highlight": "resumo",
+        "date": "data"
+    },
+    "metadata": {
+        "author": {
+            "name": "nome autor",
+            "username": "nickname autor"
+        },
+        "court": "corte",
+        "jurisprudence_type": "tipo de jurisprudencia",
+        "degree": "grau",
+        "rapporteur_name": "nome do rapporteur",
+        "judging_organ": "orgão juridico",
+        "related_judges": "lista de juizes relacionados",
+        "document_citations": [
+            {
+                "id": "2",
+                "kind": "tipo de documento citadpl",
+                "count": "contagem"
+            }
+        ],
+        "addons": "lista de addons"
+    },
+    "phrasal_terms": "termos frasais"
+}
+
+
+pr = PipelineReader(DATABASE_PATH)
+
+pr._insert_search_fields(doc, generate_search_field_combinations(SearchFieldsConfig))

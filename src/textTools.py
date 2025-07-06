@@ -1,3 +1,4 @@
+print("Loading text tools...", flush=True)
 import re
 import os
 import nltk

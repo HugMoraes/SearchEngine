@@ -1,57 +1,55 @@
-from itertools import combinations, product
+from src.insertDocs.SearchFieldsModels import SearchFieldsConfig, SearchField
+from itertools import chain, combinations as iter_combinations, product
 
-def gerar_combinacoes_generalizadas(opcionais_comuns: list, grupos_exclusivos: list[list]):
+def generate_search_field_combinations(config: SearchFieldsConfig) -> list[SearchField]:
     """
-    Gera todas as combinações válidas de itens, dadas as regras de exclusividade.
+    Gera TODAS as combinações possíveis de técnicas para cada campo,
+    garantindo que cada combinação tenha pelo menos uma técnica.
+
+    A função trata tanto as técnicas comuns quanto as exclusivas como opcionais,
+    mas respeita as regras de exclusividade.
 
     Args:
-        opcionais_comuns (list): Uma lista de itens que podem ser livremente combinados.
-        grupos_exclusivos (list[list]): Uma lista de listas. Cada lista interna é um grupo
-                                        de itens mutuamente exclusivos (apenas um pode ser
-                                        escolhido por combinação).
+        config: Uma instância da classe de configuração SearchFieldsConfig.
 
     Returns:
-        list[list]: Uma lista com todas as combinações válidas possíveis. A lista é
-                    ordenada por tamanho e depois alfabeticamente para consistência.
+        Uma lista de instâncias de SearchField com todas as combinações válidas.
     """
     
-    # --- Passo 1: Gerar todas as combinações possíveis dos itens comuns ---
-    # Isso inclui a combinação vazia (não escolher nenhum item comum).
-    combos_comuns = []
-    for r in range(len(opcionais_comuns) + 1):
-        for combo in combinations(opcionais_comuns, r):
-            combos_comuns.append(list(combo))
+    # 1. Gerar o "power set" (todos os subconjuntos) das técnicas comuns.
+    # Isso nos dará combinações com zero, uma ou ambas as técnicas comuns.
+    common_techs = config.COMMON_TECHNIQUES
+    common_subsets = list(chain.from_iterable(iter_combinations(common_techs, r) for r in range(len(common_techs) + 1)))
+    # Resultado: [(), ('remove_stopwords',), ('lowercase_text',), ('remove_stopwords', 'lowercase_text')]
 
-    # --- Passo 2: Gerar todas as escolhas válidas dos grupos exclusivos ---
-    # Para cada grupo, adicionamos 'None' para representar a escolha de "nenhum item deste grupo".
-    opcoes_dos_grupos = []
-    for grupo in grupos_exclusivos:
-        opcoes_dos_grupos.append(grupo + [None])
-    
-    # Usamos itertools.product para obter o produto cartesiano de todas as escolhas possíveis.
-    # Cada resultado do product é uma tupla com uma escolha de cada grupo.
-    # Ex: ('Stemming', 'BERT'), ('Stemming', None), ('Lematização', 'Word2Vec'), etc.
-    combos_exclusivos_raw = product(*opcoes_dos_grupos)
+    # 2. Gerar as escolhas possíveis para os grupos de técnicas exclusivas.
+    # Adicionamos 'None' para representar a escolha de não usar nenhuma técnica do grupo.
+    exclusive_groups_with_none = [group + [None] for group in config.EXCLUSIVE_OPTIONAL_TECHNIQUES]
+    exclusive_choices = list(product(*exclusive_groups_with_none))
+    # Resultado: [('steamming',), ('lematization',), (None,)]
 
-    # Limpamos os resultados, removendo os 'None' para formar as combinações finais.
-    combos_exclusivos = []
-    for combo_tuple in combos_exclusivos_raw:
-        # Filtra os 'None' e cria uma lista limpa
-        clean_combo = [item for item in combo_tuple if item is not None]
-        combos_exclusivos.append(clean_combo)
+    # 3. Combinar tudo e filtrar
+    valid_technique_sets = set()
 
-    # --- Passo 3: Combinar os resultados e remover duplicatas ---
-    resultados_finais = set()
-    for c_comum in combos_comuns:
-        for c_exclusivo in combos_exclusivos:
-            # Combina a parte comum com a parte exclusiva
-            final_combo = tuple(sorted(c_comum + c_exclusivo))
-            resultados_finais.add(final_combo)
+    for common_combo_tuple in common_subsets:
+        for exclusive_choice_tuple in exclusive_choices:
             
-    # Converte o set de tuplas de volta para uma lista de listas
-    lista_de_resultados = [list(combo) for combo in resultados_finais]
+            # Monta a lista de técnicas da combinação atual
+            current_techniques = list(common_combo_tuple)
+            current_techniques.extend([tech for tech in exclusive_choice_tuple if tech is not None])
+            
+            # 4. Garantir a regra de "pelo menos uma técnica"
+            if len(current_techniques) > 0:
+                # Adiciona a tupla ordenada a um set para garantir unicidade
+                valid_technique_sets.add(tuple(sorted(current_techniques)))
 
-    # Ordena a lista final para uma exibição mais clara (primeiro por tamanho, depois alfabeticamente)
-    lista_de_resultados.sort(key=lambda x: (len(x), x))
-    
-    return lista_de_resultados
+    # 5. Criar as instâncias de SearchField para cada campo
+    all_combinations = []
+    for field in config.FIELDS:
+        for tech_set_tuple in sorted(list(valid_technique_sets)): # Ordena para um resultado previsível
+            all_combinations.append(SearchField(techniques=list(tech_set_tuple), from_field=field))
+            
+    return all_combinations
+
+for i in generate_search_field_combinations(SearchFieldsConfig):
+    print(i)
