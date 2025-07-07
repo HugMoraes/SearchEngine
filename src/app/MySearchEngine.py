@@ -1,4 +1,7 @@
 from elasticsearch import Elasticsearch, exceptions
+from src.app.QueryConfig import QueryConfig
+from src.insertDocs.SearchFieldsModels import TEXT_FUNCTIONS
+from src.textTools import Tools
 import time
 
 class MySearchEngine(Elasticsearch):
@@ -6,7 +9,7 @@ class MySearchEngine(Elasticsearch):
     Uma subclasse customizada do cliente Elasticsearch para adicionar
     métodos de conveniência e tratamento de erros padronizado.
     """
-    def __init__(self, config=None,*args, **kwargs):
+    def __init__(self, config:QueryConfig=None,*args, **kwargs):
         """
         Inicializa a conexão com o Elasticsearch com múltiplas tentativas.
 
@@ -18,6 +21,9 @@ class MySearchEngine(Elasticsearch):
 
         ATENÇÃO: USE hosts={url do elastic} !!!!!!!
         """
+
+        self.config = config
+
         print("Iniciando processo de conexão com o Elasticsearch...")
 
         if 'hosts' not in kwargs:
@@ -77,13 +83,27 @@ class MySearchEngine(Elasticsearch):
             list: Uma lista dos dicionários '_source' dos documentos encontrados.
                   Retorna uma lista vazia se nenhum documento for encontrado ou em caso de erro.
         """
-        print(f"\nBuscando por: {query}")
+        #print(f"\nBuscando por: {query}")
+
+        for technique in self.config.text_techniques:
+            if technique not in TEXT_FUNCTIONS:
+                raise ValueError(f"Técnica de texto desconhecida: {technique}. Verifique a configuração.")
+            
+            query = TEXT_FUNCTIONS[technique](query)
+            
+        if self.config.ai_global_expansion:
+            query += Tools.expand_query(query)
+
         try:
             request_body = {
+                "_source": {
+                    "excludes": ["search_fields"]
+                },
                 "size": size,
                 "query": {
-                    "query_string": {
-                        "query": query
+                    "multi_match": {
+                        "query": query,
+                        "fields": self.config.fields
                     }
                 }
             }
@@ -91,7 +111,7 @@ class MySearchEngine(Elasticsearch):
             response = self.search(index=index_name, body=request_body)
 
             documents = [hit["_source"] for hit in response["hits"]["hits"]]
-            print(f"Encontrados {len(documents)} documentos em '{index_name}'.")
+            #print(f"Encontrados {len(documents)} documentos em '{index_name}'.")
             return documents
 
         except Exception as e:
@@ -114,4 +134,3 @@ class MySearchEngine(Elasticsearch):
             print(f"Error counting documents: {e}")
             raise Exception
         
-

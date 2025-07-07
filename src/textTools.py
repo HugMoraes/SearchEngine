@@ -8,7 +8,7 @@ from sentence_transformers import SentenceTransformer
 from nltk.corpus import stopwords
 from nltk.stem import RSLPStemmer
 from nltk.tokenize import word_tokenize
-from groq import Groq
+import ollama
 
 _model_st = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 
@@ -33,11 +33,10 @@ except LookupError:
 # Carrega o modelo do spaCy para português
 try:
     nlp_pt = spacy.load("pt_core_news_sm")
+    nlp_pt.max_length = 5000000
 except OSError:
     os.system("python -m spacy download pt_core_news_sm")
     nlp_pt = spacy.load("pt_core_news_sm")
-
-client = Groq(api_key="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")
 
 class Tools:
 
@@ -73,22 +72,41 @@ class Tools:
     
     @staticmethod
     def expand_query(query: str) -> str:
-        stream = client.chat.completions.create(
+        """
+        Expande uma consulta jurídica usando o Llama 3 rodando localmente via Ollama.
+        """
+        # O prompt de sistema é o mesmo que você usou para o Groq
+        prompt_sistema = """
+            Você vai me ajudar a expandir consultas no contexto de um sistema de busca jurídico. 
+            Vou lhe mandar textos e você expandirá os substantivos, verbos e adjetivos com 
+            seus respectivos sinônimos. Escreva pelo menos três sinônimos para as palavras 
+            mais importantes da consulta. Retorne apenas a consulta com os sinônimos, 
+            sem caracteres especiais e sem vírgula onde houver os sinônimos adicionados. 
+            não escreva mais nada além disso. Escreva em português!
+            """
+
+        # A mensagem do usuário também segue o mesmo padrão
+        prompt_usuario = f'Em português. Expanda a seguinte query adicionando apenas 2 a 4 palavras importantes semelhantes para busca em um sistema de busca jurídico: "{query}"'
+
+        # Chama a API do Ollama com os prompts e parâmetros
+        response = ollama.chat(
+            model='llama3',  # Ou o nome exato do seu modelo local
             messages=[
                 {
-                    "role": "system",
-                    "content": "Você vai me ajudar a expandir consultas no contexto de um sistema de busca jurídico. Vou lhe mandar textos e você expandirá os substantivos, verbos e adjetivos com seus respectivos sinônimos. Escreva pelo menos três sinônimos para as palavras mais importantes da consulta. Retorne apenas a consulta com os sinônimos, sem caracteres especiais e sem vírgula onde houver os sinônimos adicionados. não escreva mais nada além disso."
+                    'role': 'system',
+                    'content': prompt_sistema.strip(),  # .strip() remove espaços/linhas em branco do início/fim
                 },
                 {
-                    "role": "user",
-                    "content": f'Expanda a seguinte query: "{query}"'
-                }
+                    'role': 'user',
+                    'content': prompt_usuario,
+                },
             ],
-            model="llama-3.3-70b-versatile",
-            temperature=0.5,
+            options={
+                'temperature': 0.5,
+            }
         )
 
-        return stream.choices[0].message.content
+        return response['message']['content']
 
     @staticmethod
     def vectorize(text: str) -> ndarray:
@@ -97,29 +115,44 @@ class Tools:
         return vector
     
     def ai_text(text: str) -> str:
-        stream = client.chat.completions.create(
+        """
+        Otimiza textos para busca jurídica, extraindo termos e consultas
+        usando o Llama 3 rodando localmente via Ollama.
+        """
+
+        prompt_sistema = """
+                        Você vai me ajudar a otimizar textos em um contexto de busca por documentos jurídicos.
+                        Vou te mandar textos e você vai me retornar termos e possíveis consultas sobre as coisas mais importantes de cada parágrafo do texto.
+                        Me retorne em um formato padronizado que seja cada resultado separado por espaços, NÃO USE QUEBRA DE LINHA!.
+                        Não escreva nada além do resultado. Escreva em português!
+                        Escreva um longo texto com termos otimizados para busca jurídica
+                        
+                        """
+
+        # O prompt do usuário que inclui o texto a ser analisado.
+        prompt_usuario = f'Extraia termos e frases otimizadas para busca jurídica deste texto: "{text}"'
+
+        # Chamada para a biblioteca ollama, com a mesma estrutura de antes
+        response = ollama.chat(
+            model='llama3',  # Use o nome do seu modelo local
             messages=[
                 {
-                    "role": "system",
-                    "content":
-                    """
-                    Você vai me ajudar a otimizar textos em um contexto de busca por documentos jurídicos.
-                    Vou te mandar textos e você vai me retornar termos e possíveis consultas sobre as coisas mais importantes de cada parágrafo do texto.
-                    Me retorne em um formato padronizado que seja cada resultado separado por quebras de linha.
-                    Não escreva nada além do resultado.
-                    Para cada texto, leia todos os parágrafos e gere pelo menos 10 resultados e no máximo 50.
-                    """
+                    'role': 'system',
+                    'content': prompt_sistema.strip(), # .strip() remove espaços/linhas em branco do início/fim
                 },
                 {
-                    "role": "user",
-                    "content": f'Extraia termos otimizados para busca jurídica deste texto: "{text}"'
-                }
+                    'role': 'user',
+                    'content': prompt_usuario,
+                },
             ],
-            model="llama-3.3-70b-versatile",
-            temperature=0.5,
+            options={
+                'temperature': 0.5,
+            }
         )
 
-        return stream.choices[0].message.content
+        # Retorna o conteúdo da resposta do modelo
+        return response['message']['content']
+
 
 
 # print(Tools.ai_text('''

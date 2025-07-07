@@ -103,7 +103,7 @@ class MyElasticsearch(Elasticsearch):
         Insert a document into the specified index.
         """
         try:
-            response = self.index(index=index_name, body=document)
+            response = self.index(index=index_name, body=document, id=document["id"])
             print(f"Document inserted with ID: {response['_id']}")
         except Exception as e:
             print(f"Error inserting document: {e}")

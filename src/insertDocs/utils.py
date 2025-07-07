@@ -48,8 +48,5 @@ def generate_search_field_combinations(config: SearchFieldsConfig) -> list[Searc
     for field in config.FIELDS:
         for tech_set_tuple in sorted(list(valid_technique_sets)): # Ordena para um resultado previsível
             all_combinations.append(SearchField(techniques=list(tech_set_tuple), from_field=field))
-            
-    return all_combinations
 
-for i in generate_search_field_combinations(SearchFieldsConfig):
-    print(i)
+    return all_combinations

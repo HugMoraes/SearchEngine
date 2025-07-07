@@ -4,12 +4,13 @@ import numpy as np
 from src.config import DATABASE_PATH
 from src.insertDocs.SearchFieldsModels import SearchField, TEXT_FUNCTIONS, SearchFieldsConfig
 from src.insertDocs.utils import generate_search_field_combinations
+from src.textTools import Tools
 
 class PipelineReader:
     def __init__(self, filepath: str):
         self.filepath = filepath
         self.df = None
-        #self.load_file()
+        self.load_file()
     
     def load_file(self) -> None:
         print(f"Lendo arquivo parquet {self.filepath}...")
@@ -81,84 +82,45 @@ class PipelineReader:
 
         search_fields = {}
 
-        for field in searchFields:
-            
-            field_text = doc["document"][field.from_field]
+        try:
 
-            for technique_name in field.techniques:
-                field_text = TEXT_FUNCTIONS[technique_name](field_text)
+            for field in searchFields:
+                
+                field_text = doc["document"][field.from_field]
+                if field_text == None or field_text == "":
+                    search_fields[field.from_field + "_" + "_".join(field.techniques)] = ""
+                    continue
 
-            search_fields[field.from_field + "." + ".".join(field.techniques)] = field_text
+                for technique_name in field.techniques:
+                    field_text = TEXT_FUNCTIONS[technique_name](field_text)
+
+                search_fields[field.from_field + "_" + "_".join(field.techniques)] = field_text
+
+        except Exception as e:
+            print("Error transformando texto")
+            print(f"texto do campo: {field_text}")
+            print("Documento:\n")
+            print(doc)
+            print()
+            print(e)
+            exit()
+
 
         doc["search_fields"] = search_fields
 
-        print(doc)
+        return doc
 
-        for key, text in doc["search_fields"].items():
-            print(key, text)
+    def _insert_ai_text_search_field(self, doc):
 
-        pass
+        if doc["document"]["highlight"] is None or doc["document"]["highlight"] == "":
+            doc["search_fields"]["ai_text"] = ""
+        else:
+            doc["search_fields"]["ai_text"] = Tools.ai_text(doc["document"]["highlight"])
+
+        return doc
 
     def documents_to_index_format(self):
         """Converte o DataFrame para uma lista de dicionários no formato para indexação.
-
-        Este método itera sobre cada linha do DataFrame, converte-a para um dicionário
-        estruturado e, opcionalmente, aplica uma série de funções de processamento de
-        texto a campos específicos do dicionário gerado.
-
-        Args:
-            transformations (dict, optional): Um dicionário para especificar as
-                transformações de texto a serem aplicadas. Se None, nenhuma
-                transformação é realizada.
-
-                A estrutura do dicionário deve ser:
-                - Chave (str): O caminho para o campo a ser transformado, usando '.'
-                como separador (ex: 'document.body').
-                - Valor (callable ou list[callable]): A função ou lista de funções
-                a serem aplicadas ao campo. Se for uma lista, as funções são
-                aplicadas em sequência (pipeline).
-
-        Returns:
-            list[dict]: Uma lista de dicionários, onde cada dicionário representa
-                        um documento pronto para indexação, com as transformações
-                        devidamente aplicadas.
-
-        Examples:
-            # 1. Uso básico, sem aplicar nenhuma transformação:
-            documentos = reader.documents_to_index_format()
-
-            # 2. Aplicando uma única transformação (lowercase) ao título:
-            transform_simples = {
-                'document.title': tool.lowercase_text
-            }
-            documentos_lower = reader.documents_to_index_format(
-                transformations=transform_simples
-            )
-
-            # 3. Aplicando transformações diferentes a campos diferentes:
-            transform_multi = {
-                'document.title': tool.lowercase_text,
-                'document.highlight': tool.remove_special_characters
-            }
-            documentos_multi = reader.documents_to_index_format(
-                transformations=transform_multi
-            )
-
-            # 4. Aplicando um pipeline de transformações ao corpo do documento.
-            #    As funções são aplicadas na ordem da lista:
-            #    1º -> remove_special_characters
-            #    2º -> lowercase_text
-            #    3º -> remove_stopwords
-            pipeline_completo = {
-                'document.body': [
-                    tool.remove_special_characters,
-                    tool.lowercase_text,
-                    tool.remove_stopwords
-                ]
-            }
-            documentos_processados = reader.documents_to_index_format(
-                transformations=pipeline_completo
-            )
         """
         if self.df is None:
             print("DataFrame está vazio. Por favor, carregue o arquivo primeiro.")
@@ -173,8 +135,9 @@ class PipelineReader:
             print(f"Processando documento: {i + 1}/{total_docs}", end="\r")
 
             doc = self._create_document_from_row(row)
-            doc = self._insert_search_fields(doc)
-                
+            doc = self._insert_search_fields(doc, generate_search_field_combinations(SearchFieldsConfig))
+            doc = self._insert_ai_text_search_field(doc)
+
             documents.append(doc)
 
         print() 
@@ -182,38 +145,38 @@ class PipelineReader:
         
         return documents
 
-doc = {
-    "id": 123,
-    "document": {
-        "title": "TITUlo1",
-        "body": "corpo do documento",
-        "highlight": "resumo",
-        "date": "data"
-    },
-    "metadata": {
-        "author": {
-            "name": "nome autor",
-            "username": "nickname autor"
-        },
-        "court": "corte",
-        "jurisprudence_type": "tipo de jurisprudencia",
-        "degree": "grau",
-        "rapporteur_name": "nome do rapporteur",
-        "judging_organ": "orgão juridico",
-        "related_judges": "lista de juizes relacionados",
-        "document_citations": [
-            {
-                "id": "2",
-                "kind": "tipo de documento citadpl",
-                "count": "contagem"
-            }
-        ],
-        "addons": "lista de addons"
-    },
-    "phrasal_terms": "termos frasais"
-}
+# doc = {
+#     "id": 123,
+#     "document": {
+#         "title": "TITUlo1",
+#         "body": "corpo do documento",
+#         "highlight": "resumo",
+#         "date": "data"
+#     },
+#     "metadata": {
+#         "author": {
+#             "name": "nome autor",
+#             "username": "nickname autor"
+#         },
+#         "court": "corte",
+#         "jurisprudence_type": "tipo de jurisprudencia",
+#         "degree": "grau",
+#         "rapporteur_name": "nome do rapporteur",
+#         "judging_organ": "orgão juridico",
+#         "related_judges": "lista de juizes relacionados",
+#         "document_citations": [
+#             {
+#                 "id": "2",
+#                 "kind": "tipo de documento citadpl",
+#                 "count": "contagem"
+#             }
+#         ],
+#         "addons": "lista de addons"
+#     },
+#     "phrasal_terms": "termos frasais"
+# }
 
 
-pr = PipelineReader(DATABASE_PATH)
+# pr = PipelineReader(DATABASE_PATH)
 
-pr._insert_search_fields(doc, generate_search_field_combinations(SearchFieldsConfig))
+# print(pr._insert_search_fields(doc, generate_search_field_combinations(SearchFieldsConfig)))

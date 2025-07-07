@@ -7,7 +7,7 @@ class SearchFieldsConfig:
     ]
 
     EXCLUSIVE_OPTIONAL_TECHNIQUES = [
-        ["steamming", "lematization"]
+        ["stemming", "lemmatization"]
     ]
 
     FIELDS = [
@@ -27,8 +27,8 @@ class SearchField:
 TEXT_FUNCTIONS = {
     "remove_stopwords": Tools.remove_stopwords,
     "lowercase_text": Tools.lowercase_text,
-    "lematization": Tools.apply_lemmatization,
-    "steamming": Tools.apply_stemming
+    "lemmatization": Tools.apply_lemmatization,
+    "stemming": Tools.apply_stemming
 }
 
             #         "ai_text"

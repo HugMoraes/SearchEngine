@@ -1,7 +1,7 @@
 from src.app.MySearchEngine import MySearchEngine
 from src.config import ELASTIC_SEARCH_ADDRESS, MAIN_INDEX_NAME
 import sys
-from src.insert_docs import insert_docs
+from SearchEngine.src.insertDocs.insert_docs import insert_docs
 
 def check_index_elasticSearch():
     """
@@ -54,12 +54,3 @@ def check_index_elasticSearch():
         print(f"Detalhes: {e}")
         print("--- Servidor Flask NÃO será iniciado. ---")
         sys.exit(1)
-
-
-def remove_search_fields(document: dict):
-    document.pop("search_fields")
-    return document
-
-
-# document = {"metadata": [1,2,3], "title": "documento", "search_fields": ["metadata"]}
-# print(remove_search_fields(document))

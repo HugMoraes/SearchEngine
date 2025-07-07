@@ -85,9 +85,9 @@ def _to_document_results(search_hits: list[dict]) -> list[DocumentResult]:
 
 #     return results
 
-queries_from_file = load_queries_from_file('data/query_eval')
+# queries_from_file = load_queries_from_file('data/query_eval')
 
-print(queries_from_file.keys())
+# print(queries_from_file.keys())
 
 # queries_from_elastic = query_elastic(MAIN_INDEX_NAME, query_texts_to_run)
 

@@ -1,5 +1,5 @@
 from src.utils import check_index_elasticSearch, remove_search_fields
-from src.searchEngine import MyElasticsearch
+from SearchEngine.src.insertDocs.searchEngine import MyElasticsearch
 from src.config import MAIN_INDEX_NAME, ELASTIC_SEARCH_ADDRESS # to initialize env vars
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
         try:
             resultados = es.search_documents(MAIN_INDEX_NAME, termo_de_busca, size=20)
-            map(lambda doc: remove_search_fields(doc), resultados)
+            #map(lambda doc: remove_search_fields(doc), resultados)
             return jsonify(resultados)
         except Exception as e:
             print(f"Erro durante a busca: {e}")
