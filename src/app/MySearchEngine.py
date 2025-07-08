@@ -22,7 +22,11 @@ class MySearchEngine(Elasticsearch):
         ATENÇÃO: USE hosts={url do elastic} !!!!!!!
         """
 
-        self.config = config
+        if config:
+            self.config = config
+        else:
+            self.config = QueryConfig()
+
 
         print("Iniciando processo de conexão com o Elasticsearch...")
 

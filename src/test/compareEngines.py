@@ -130,6 +130,46 @@ def compare_engines(idealQueryResults: dict[str, list[DocumentResult]]):
     print("\nComparação concluída.")
     results_df.to_csv('results.csv', index=False)
 
+def get_baseline(idealQueryResults: dict[str, list[DocumentResult]]):
 
 
-compare_engines(idealQueryResults)
+    se = MySearchEngine(hosts='http://localhost:9200')
+
+    currentQueryResults = {}
+
+    for currentQuery in idealQueryResults.keys():
+        results = se.search_documents(
+            index_name="test_index",
+            query=currentQuery,
+            size=len(idealQueryResults[currentQuery])
+        )
+
+        currentQueryResults[currentQuery] = [DocumentResult(doc['id'], 0) for doc in results]
+
+    ndcg = calculate_NDCG(idealQueryResults, currentQueryResults)
+    map_score = calculate_MAP(idealQueryResults, currentQueryResults)
+
+    print(f"Baseline NDCG: {ndcg}, MAP: {map_score}")
+
+def get_ai_global_expansion(idealQueryResults: dict[str, list[DocumentResult]]):
+
+    config = QueryConfig(ai_global_expansion=True, text_techniques_list=['lowercase_text', 'remove_stopwords'])
+
+
+    se = MySearchEngine(hosts='http://localhost:9200', config=config)
+
+    currentQueryResults = {}
+
+    for currentQuery in idealQueryResults.keys():
+        results = se.search_documents(
+            index_name="test_index",
+            query=currentQuery,
+            size=len(idealQueryResults[currentQuery])
+        )
+
+        currentQueryResults[currentQuery] = [DocumentResult(doc['id'], 0) for doc in results]
+
+    ndcg = calculate_NDCG(idealQueryResults, currentQueryResults)
+    map_score = calculate_MAP(idealQueryResults, currentQueryResults)
+
+    print(f"expansão global NDCG: {ndcg}, MAP: {map_score}")
