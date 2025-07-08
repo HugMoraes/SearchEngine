@@ -50,5 +50,3 @@ def insert_docs_one_by_one():
         doc = reader._insert_ai_text_search_field(doc)
 
         se.insert_document(index_name, doc)
-
-insert_docs_one_by_one()

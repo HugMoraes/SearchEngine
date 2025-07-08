@@ -1,0 +1,13 @@
+# Ignorar o diretório do ambiente virtual
+env/
+venv/
+
+# Ignorar arquivos de variáveis de ambiente
+.env
+
+# Outros arquivos e diretórios comuns a serem ignorados
+node_modules/
+__pycache__/
+*.pyc
+.git/
+.gitignore

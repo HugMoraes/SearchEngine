@@ -1,7 +1,7 @@
 from src.app.MySearchEngine import MySearchEngine
 from src.config import ELASTIC_SEARCH_ADDRESS, MAIN_INDEX_NAME
 import sys
-from SearchEngine.src.insertDocs.insert_docs import insert_docs_without_processing
+from src.insertDocs.insert_docs import insert_docs_without_processing
 
 def check_index_elasticSearch():
     """

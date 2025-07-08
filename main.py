@@ -1,6 +1,6 @@
-from src.utils import check_index_elasticSearch, remove_search_fields
-from SearchEngine.src.insertDocs.searchEngine import MyElasticsearch
-from src.config import MAIN_INDEX_NAME, ELASTIC_SEARCH_ADDRESS # to initialize env vars
+from src.utils import check_index_elasticSearch
+from src.app.MySearchEngine import MySearchEngine
+from src.config import MAIN_INDEX_NAME, ELASTIC_SEARCH_ADDRESS, BEST_QUERY_CONFIG # to initialize env vars
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     CORS(app)
 
     try:
-        es = MyElasticsearch(hosts=ELASTIC_SEARCH_ADDRESS)
+        es = MySearchEngine(hosts=ELASTIC_SEARCH_ADDRESS, config=BEST_QUERY_CONFIG)
     except Exception as e:
         print(f"   - Erro ao conectar com o Elasticsearch: {e}")
         es = None
