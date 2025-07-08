@@ -1,7 +1,6 @@
 from src.insertDocs.utils import SearchFieldsConfig
 
 class QueryConfig:
-    # A lógica de setup das técnicas válidas permanece a mesma
     combined_techniques = SearchFieldsConfig.COMMON_TECHNIQUES + SearchFieldsConfig.EXCLUSIVE_OPTIONAL_TECHNIQUES
     flattened_techniques = (
         tech for item in combined_techniques for tech in (item if isinstance(item, list) else [item])
@@ -29,17 +28,11 @@ class QueryConfig:
         self.ai_text = ai_text
         self.ai_global_expansion = ai_global_expansion
 
-        # --- LÓGICA DE GERAÇÃO DE CAMPOS ATUALIZADA ---
-
-        # CASO 1: Existem técnicas de texto a serem aplicadas.
         if text_techniques_list:
             self._validate_and_generate_fields(text_techniques_list)
-        # CASO 2: Nenhuma técnica de texto é fornecida. Usa os campos padrão.
         else:
             self.fields = ['document.body', 'document.title', 'document.highlight']
 
-        # REGRA ADICIONAL: Adiciona o campo de busca por IA se a flag estiver ativa.
-        # Isso é executado independentemente de haver técnicas de texto ou não.
         if self.ai_text:
             self.fields.append('search_fields.ai_text')
 

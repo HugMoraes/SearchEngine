@@ -4,7 +4,7 @@ from src.config import DATABASE_PATH, ELASTIC_SEARCH_ADDRESS, MAIN_INDEX_NAME
 from src.insertDocs.SearchFieldsModels import SearchFieldsConfig
 from src.insertDocs.utils import generate_search_field_combinations
 
-def insert_docs():
+def insert_docs_without_processing():
     reader = PipelineReader(DATABASE_PATH)
     se = MyElasticsearch(hosts=ELASTIC_SEARCH_ADDRESS)
 

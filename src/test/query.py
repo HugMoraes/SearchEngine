@@ -9,8 +9,6 @@ class DocumentResult:
         self.relevance: float = relevance
 
     def __str__(self) -> str:
-        """Retorna uma representação em string do objeto DocumentResult."""
-        # << MELHORIA: Formata a relevância para ter 2 casas decimais para melhor leitura.
         return f"ID do Documento: {self.id}, Relevância: {self.relevance:.2f}"
 
 def load_queries_from_file(path: str) -> dict[str, DocumentResult]:
@@ -48,49 +46,3 @@ def load_queries_from_file(path: str) -> dict[str, DocumentResult]:
     
     return queries_dict
 
-def _to_document_results(search_hits: list[dict]) -> list[DocumentResult]:
-    """
-    Converte a lista de 'hits' de uma busca do Elasticsearch em uma lista de objetos DocumentResult.
-    """
-    document_results = []
-    if not search_hits:
-        return document_results
-
-    for hit in search_hits:
-        doc_id = hit.get('_id')
-        relevance_score = hit.get('_score', 0.0)
-
-        if doc_id:
-            doc_result = DocumentResult(doc_id=doc_id, relevance=relevance_score)
-            document_results.append(doc_result)
-            
-    return document_results
-
-
-# def query_elastic(index_name: str, queries: list[str], size: int = 20) -> list[Query]:
-#     """
-#     Executa uma lista de textos de consulta no Elasticsearch e retorna uma lista de objetos Query com os resultados.
-#     """
-#     results = []
-#     for query_text in queries:
-#         try:
-#             search_hits = es.search_documents(index_name, query=query_text, size=size)
-            
-#             doc_results = _to_document_results(search_hits)
-            
-#             results.append(Query(text=query_text, documents=doc_results))
-#         except Exception as e:
-#             print(f"Erro ao buscar pela query '{query_text}': {e}")
-#             results.append(Query(text=query_text, documents=[]))
-
-#     return results
-
-# queries_from_file = load_queries_from_file('data/query_eval')
-
-# print(queries_from_file.keys())
-
-# queries_from_elastic = query_elastic(MAIN_INDEX_NAME, query_texts_to_run)
-
-# for query in queries_from_elastic:
-#     print(query)
-#     print("---")

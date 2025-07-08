@@ -3,3 +3,4 @@ baseDocumentos
 __pycache__
 .venv
 .vscode
+.csv

@@ -144,39 +144,3 @@ class PipelineReader:
         print("Processamento concluído!")
         
         return documents
-
-# doc = {
-#     "id": 123,
-#     "document": {
-#         "title": "TITUlo1",
-#         "body": "corpo do documento",
-#         "highlight": "resumo",
-#         "date": "data"
-#     },
-#     "metadata": {
-#         "author": {
-#             "name": "nome autor",
-#             "username": "nickname autor"
-#         },
-#         "court": "corte",
-#         "jurisprudence_type": "tipo de jurisprudencia",
-#         "degree": "grau",
-#         "rapporteur_name": "nome do rapporteur",
-#         "judging_organ": "orgão juridico",
-#         "related_judges": "lista de juizes relacionados",
-#         "document_citations": [
-#             {
-#                 "id": "2",
-#                 "kind": "tipo de documento citadpl",
-#                 "count": "contagem"
-#             }
-#         ],
-#         "addons": "lista de addons"
-#     },
-#     "phrasal_terms": "termos frasais"
-# }
-
-
-# pr = PipelineReader(DATABASE_PATH)
-
-# print(pr._insert_search_fields(doc, generate_search_field_combinations(SearchFieldsConfig)))

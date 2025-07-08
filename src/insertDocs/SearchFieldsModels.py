@@ -31,5 +31,3 @@ TEXT_FUNCTIONS = {
     "stemming": Tools.apply_stemming
 }
 
-            #         "ai_text"
-    # "global_expasion_ai_synonyms"

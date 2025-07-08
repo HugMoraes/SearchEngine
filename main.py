@@ -5,12 +5,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 if __name__ == '__main__':
-    
-    """
-    Esta é a "Application Factory".
-    Nenhum app é criado até que esta função seja chamada.
-    Ela configura e retorna uma nova instância da aplicação.
-    """
 
     print("\n--- INICIANDO VERIFICAÇÃO DE PRÉ-REQUISITOS ---")
     check_index_elasticSearch()
@@ -37,7 +31,6 @@ if __name__ == '__main__':
 
         try:
             resultados = es.search_documents(MAIN_INDEX_NAME, termo_de_busca, size=20)
-            #map(lambda doc: remove_search_fields(doc), resultados)
             return jsonify(resultados)
         except Exception as e:
             print(f"Erro durante a busca: {e}")
